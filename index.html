@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>RuNetTest — Проверка интернет-соединения</title>
 <style>
-  /* Темы и стили (как у тебя) */
+  /* Твои стили из вопроса, без изменений */
   :root {
     --accent-color: #4a90e2;
     --accent-glow: #4a90e233;
@@ -35,7 +35,6 @@
     --chart-bg: #dbe1f0;
     --log-shadow: inset 0 0 10px #a0b4ff33;
   }
-
   body {
     background: var(--bg-color);
     color: var(--text-color);
@@ -53,7 +52,6 @@
     color: var(--accent-color);
     text-shadow: 0 0 6px var(--accent-glow);
   }
-
   .circle {
     width: clamp(180px, 45vw, 260px);
     height: clamp(180px, 45vw, 260px);
@@ -68,7 +66,6 @@
     flex-direction: column;
     position: relative;
   }
-
   .value {
     font-size: clamp(2.4rem, 8vw, 4.5rem);
     color: var(--accent-color);
@@ -76,7 +73,6 @@
     text-shadow: 0 0 3px var(--accent-glow);
     transition: color 0.3s ease;
   }
-
   .unit {
     font-size: clamp(0.9rem, 2vw, 1.3rem);
     color: #8092aa;
@@ -86,7 +82,6 @@
     display: inline-flex;
     align-items: center;
   }
-
   .unit button {
     margin-left: 8px;
     background: var(--btn-bg);
@@ -103,7 +98,6 @@
   .unit button:hover {
     background: var(--btn-bg-hover);
   }
-
   .results {
     margin: 0 auto 40px;
     max-width: 480px;
@@ -118,7 +112,6 @@
   strong {
     color: var(--accent-color);
   }
-
   button, #toggleIpBtn, #toggleLangBtn, #toggleThemeBtn {
     margin-top: 10px;
     padding: 12px 40px;
@@ -144,7 +137,6 @@
     box-shadow: none;
     color: #7a8594;
   }
-
   #toggleIpBtn, #toggleLangBtn, #toggleThemeBtn {
     font-size: 0.85rem;
     padding: 6px 14px;
@@ -152,7 +144,6 @@
     vertical-align: middle;
     border-radius: var(--btn-radius);
   }
-
   #log {
     max-width: 480px;
     margin: 0 auto;
@@ -223,12 +214,10 @@
 <div id="log" aria-live="polite" aria-atomic="false"></div>
 
 <script>
-  // === Конфигурация ===
-  // URL файла для теста, он должен быть в твоем репозитории рядом с index.html
-  // Например, положи файл 5MB.bin в корень репозитория
+  // URL для теста скачивания (файл ~5MB рядом с html)
   const TEST_FILE_URL = './5MB.bin';
 
-  // === Элементы ===
+  // Элементы
   const logEl = document.getElementById("log");
   const ipEl = document.getElementById("ip");
   const toggleIpBtn = document.getElementById("toggleIpBtn");
@@ -244,7 +233,7 @@
   const downloadLabel = document.getElementById("download-label");
   const titleEl = document.getElementById("title");
 
-  // === Состояние ===
+  // Состояние
   let ipHidden = false;
   let useMegaBytes = false; // false = Мбит/с, true = МБ/с
   let lang = 'ru'; // ru или en
@@ -252,7 +241,7 @@
   let lastPingMs = 0;
   let lastDownloadBps = 0;
 
-  // === Тексты ===
+  // Тексты
   const texts = {
     ru: {
       title: "RuNetTest — Проверка интернет-соединения",
@@ -286,8 +275,6 @@
     }
   };
 
-  // === Функции ===
-
   function log(text, type = "") {
     const now = new Date().toLocaleTimeString();
     const line = document.createElement("div");
@@ -320,20 +307,28 @@
       return;
     }
     try {
-      // Используем публичный сервис ipify.org
-      const res = await fetch("https://api.ipify.org?format=json");
-      if (!res.ok) throw new Error("Ошибка получения IP");
-      const data = await res.json();
-      if (data.ip) {
-        ipEl.textContent = data.ip;
-        log(`IP ${data.ip} получен / IP ${data.ip} received`);
-      } else {
-        ipEl.textContent = lang === 'ru' ? "Не удалось получить IP" : "Failed to get IP";
-        log(lang === 'ru' ? "Ошибка при получении IP" : "Error fetching IP");
-      }
+      // Сначала ipify
+      let res = await fetch("https://api.ipify.org?format=json");
+      if (!res.ok) throw new Error("ipify error");
+      let data = await res.json();
+      if (!data.ip) throw new Error("ipify no ip");
+
+      ipEl.textContent = data.ip;
+      log(`IP ${data.ip} получен / IP ${data.ip} received`);
     } catch {
-      ipEl.textContent = lang === 'ru' ? "Не удалось получить IP" : "Failed to get IP";
-      log(lang === 'ru' ? "Ошибка при получении IP" : "Error fetching IP");
+      try {
+        // Резерв ipinfo.io
+        let res = await fetch("https://ipinfo.io/json");
+        if (!res.ok) throw new Error("ipinfo error");
+        let data = await res.json();
+        if (!data.ip) throw new Error("ipinfo no ip");
+
+        ipEl.textContent = data.ip;
+        log(`IP ${data.ip} получен / IP ${data.ip} received (from ipinfo.io)`);
+      } catch {
+        ipEl.textContent = lang === 'ru' ? "IP скрыт" : "IP hidden";
+        log(lang === 'ru' ? "Ошибка при получении IP — возможно блокировка" : "Error fetching IP — possibly blocked");
+      }
     }
   }
 
@@ -373,6 +368,7 @@
     for (let i = 0; i < attempts; i++) {
       try {
         const start = performance.now();
+        // HEAD запрос к файлу, чтобы померить задержку
         await fetch(url, { method: "HEAD", cache: "no-cache" });
         const end = performance.now();
         const ping = end - start;
@@ -385,7 +381,7 @@
     }
     if (pings.length === 0) return null;
     const avgPing = pings.reduce((a,b) => a + b, 0) / pings.length;
-    log(lang === 'ru' ? "Средний пинг: " : "Average ping: " + Math.round(avgPing) + " ms");
+    log((lang === 'ru' ? "Средний пинг: " : "Average ping: ") + Math.round(avgPing) + " ms");
     return avgPing;
   }
 
@@ -396,7 +392,7 @@
     const reader = response.body.getReader();
 
     let receivedLength = 0;
-    const contentLength = +response.headers.get("Content-Length") || 5 * 1024 * 1024; // fallback 5MB
+    const contentLength = +response.headers.get("Content-Length") || 5 * 1024 * 1024;
 
     while(true) {
       const {done, value} = await reader.read();
@@ -421,14 +417,14 @@
     pingEl.textContent = "…";
     downloadEl.textContent = "…";
 
-    log(lang === 'ru' ? "Тест начат" : "Test started");
+    log(texts[lang].testStarted, "start");
 
     try {
       const ping = await measurePing(TEST_FILE_URL);
       const downloadSpeed = await measureDownloadSpeed(TEST_FILE_URL);
 
       updateResults(downloadSpeed, ping, downloadSpeed);
-      log(lang === 'ru' ? "Тест завершён" : "Test finished");
+      log(texts[lang].testFinished, "end");
     } catch (e) {
       log((lang === 'ru' ? "Ошибка теста: " : "Test error: ") + e.message, "end");
     }
@@ -466,7 +462,7 @@
     speedUnitEl.childNodes[1].textContent = " " + t.toggleUnit + " ";
     if(ipHidden) ipEl.textContent = t.recommendationIPHidden;
 
-    // Обновляем результаты чтобы перевести единицы и подписи
+    // Обновляем результаты, чтобы перевести единицы и подписи
     updateResults(lastSpeedBps, lastPingMs, lastDownloadBps);
   }
 
