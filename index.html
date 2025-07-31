@@ -195,7 +195,7 @@
 
   async function getIP() {
     try {
-      const res = await fetch('https://api.ipify.org?format=json');
+      const res = await fetch('https://api64.ipify.org?format=json');
       const data = await res.json();
       document.getElementById('ip').textContent = data.ip;
       log(`IP адрес получен`);
@@ -245,14 +245,17 @@
     return avg.toFixed(2);
   }
 
-  // Проверенные CORS URL для скачивания
+  // Используем CORS-дружелюбные файлы для скачивания
   const downloadFiles = [
-    { url: "https://ipv4.download.thinkbroadband.com/5MB.zip", sizeBytes: 5_000_000 },
-    { url: "https://ipv4.download.thinkbroadband.com/10MB.zip", sizeBytes: 10_000_000 }
+    { url: "https://speed.hetzner.de/5MB.bin", sizeBytes: 5 * 1024 * 1024 },
+    { url: "https://speed.hetzner.de/10MB.bin", sizeBytes: 10 * 1024 * 1024 }
   ];
 
-  // URL для загрузки с CORS
-  const uploadUrl = "https://postman-echo.com/post";
+  // Тест загрузки отключён (нет CORS-доступного URL)
+  async function measureUpload() {
+    log("Тест загрузки временно отключен из-за ограничений CORS.");
+    return 0;
+  }
 
   async function measureDownload() {
     let totalBytes = 0;
@@ -282,44 +285,6 @@
     }
     if (totalTime === 0) return 0;
     return (totalBytes * 8) / totalTime;
-  }
-
-  async function measureUpload() {
-    const sizeBytes = 512 * 1024;
-    const data = new Uint8Array(sizeBytes);
-    const chunkSize = 128 * 1024;
-    let totalBits = 0;
-    let totalTime = 0;
-
-    for (let i = 0; i < sizeBytes; i += chunkSize) {
-      const chunk = data.subarray(i, i + chunkSize);
-      log(`Загружаем ${(i + chunk.length) / 1024} КБ из ${sizeBytes / 1024} КБ...`);
-      const start = performance.now();
-      try {
-        const response = await fetch(uploadUrl, {
-          method: "POST",
-          body: chunk,
-          mode: "cors",
-          cache: "no-store",
-          headers: {
-            "Content-Type": "application/octet-stream"
-          }
-        });
-        if (!response.ok) throw new Error("HTTP " + response.status);
-      } catch (e) {
-        log(`Ошибка при загрузке: ${e.message}`);
-      }
-      const duration = (performance.now() - start) / 1000;
-      totalBits += chunk.length * 8;
-      totalTime += duration;
-
-      const speed = totalBits / totalTime;
-      addPoint(uploadPoints, speed / 1e6);
-      chartNeedsUpdate = true;
-    }
-
-    if (totalTime === 0) return 0;
-    return totalBits / totalTime;
   }
 
   function addPoint(arr, val) {
@@ -406,7 +371,7 @@
     logEl.textContent = "";
     updateResults(0, null, 0, 0);
 
-    log("ВНИМАНИЕ: запустите файл через локальный HTTP-сервер,\nнапример:\npython3 -m http.server\nчтобы избежать ошибок CORS.");
+    log("ВНИМАНИЕ: Запускайте файл через HTTPS-хостинг (например, GitHub Pages) или локальный HTTP-сервер для корректной работы.");
 
     await getIP();
 
