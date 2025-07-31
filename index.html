@@ -1,142 +1,114 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<title>RuNetTest — Проверка интернет-соединения</title>
-<style>
-  body {
-    background: #0d1117;
-    color: #eee;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 40px 20px 60px;
-    margin: 0;
-  }
-  h1 {
-    margin-bottom: 10px;
-  }
-  .circle {
-    width: 220px;
-    height: 220px;
-    background: radial-gradient(#111, #000);
-    border: 8px solid #333;
-    border-radius: 50%;
-    margin: 20px auto;
-    box-shadow: 0 0 15px #0ff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-  .value {
-    font-size: 3em;
-    color: #0ff;
-    font-weight: bold;
-  }
-  .unit {
-    font-size: 1.1em;
-    color: #888;
-    margin-top: 4px;
-  }
-  .results {
-    margin-top: 30px;
-    font-size: 1.25em;
-    line-height: 1.8em;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: left;
-  }
-  .results div {
-    margin-bottom: 10px;
-  }
-  .recommendation {
-    margin-top: 30px;
-    background: #111;
-    padding: 20px;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 10px;
-    color: #0ff;
-    font-size: 1.1em;
-    line-height: 1.5em;
-    white-space: pre-line;
-  }
-  button {
-    margin-top: 35px;
-    padding: 12px 40px;
-    font-size: 1.2em;
-    background: #0ff;
-    border: none;
-    border-radius: 6px;
-    color: #000;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  button:hover:not(:disabled) {
-    background: #00cccc;
-  }
-  button:disabled {
-    background: #055757;
-    cursor: not-allowed;
-  }
-  #toggleIpBtn {
-    font-size: 0.8em;
-    padding: 4px 8px;
-    margin-left: 10px;
-    vertical-align: middle;
-    cursor: pointer;
-    border-radius: 4px;
-    background: #0ff;
-    color: #000;
-    border: none;
-    transition: background-color 0.3s ease;
-  }
-  #toggleIpBtn:hover:not(:disabled) {
-    background: #00cccc;
-  }
-  canvas {
-    margin: 20px auto;
-    display: block;
-    background: #111;
-    border-radius: 8px;
-    max-width: 480px;
-    width: 100%;
-    height: 180px;
-  }
-  #log {
-    max-width: 480px;
-    margin: 10px auto 0;
-    padding: 15px;
-    background: #111;
-    border-radius: 8px;
-    height: 140px;
-    overflow-y: auto;
-    font-size: 0.9em;
-    color: #0ff;
-    font-family: monospace;
-    text-align: left;
-    white-space: pre-wrap;
-  }
-  /* Блок для отображения мегабайт/сек под мегабитами */
-  .speed-mb {
-    font-size: 0.9em;
-    color: #0aa;
-    margin-top: 2px;
-  }
-
-  #customUrlsInput {
-    visibility: hidden;
-    height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-  #customUrlsInput.visible {
-    visibility: visible;
-    height: 80px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>RuNetTest — Проверка интернет-соединения</title>
+  <style>
+    /* СТИЛИ ОСТАВЛЕНЫ БЕЗ ИЗМЕНЕНИЙ (см. выше) */
+    body {
+      background: #0d1117;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px 20px 60px;
+      margin: 0;
+    }
+    h1 { margin-bottom: 10px; }
+    .circle {
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(#111, #000);
+      border: 8px solid #333;
+      border-radius: 50%;
+      margin: 20px auto;
+      box-shadow: 0 0 15px #0ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .value { font-size: 3em; color: #0ff; font-weight: bold; }
+    .unit { font-size: 1.1em; color: #888; margin-top: 4px; }
+    .speed-mb { font-size: 0.9em; color: #0aa; margin-top: 2px; }
+    .results {
+      margin-top: 30px;
+      font-size: 1.25em;
+      line-height: 1.8em;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+    .results div { margin-bottom: 10px; }
+    .recommendation {
+      margin-top: 30px;
+      background: #111;
+      padding: 20px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 10px;
+      color: #0ff;
+      font-size: 1.1em;
+      line-height: 1.5em;
+    }
+    button {
+      margin-top: 35px;
+      padding: 12px 40px;
+      font-size: 1.2em;
+      background: #0ff;
+      border: none;
+      border-radius: 6px;
+      color: #000;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover:not(:disabled) {
+      background: #00cccc;
+    }
+    button:disabled {
+      background: #055757;
+      cursor: not-allowed;
+    }
+    #toggleIpBtn {
+      font-size: 0.8em;
+      padding: 4px 8px;
+      margin-left: 10px;
+      vertical-align: middle;
+      cursor: pointer;
+      border-radius: 4px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    #toggleIpBtn:hover:not(:disabled) {
+      background: #00cccc;
+    }
+    canvas {
+      margin: 20px auto;
+      display: block;
+      background: #111;
+      border-radius: 8px;
+      max-width: 480px;
+      width: 100%;
+      height: 180px;
+    }
+    #log {
+      max-width: 480px;
+      margin: 10px auto 0;
+      padding: 15px;
+      background: #111;
+      border-radius: 8px;
+      height: 140px;
+      overflow-y: auto;
+      font-size: 0.9em;
+      color: #0ff;
+      font-family: monospace;
+      text-align: left;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
 
@@ -154,7 +126,7 @@
     <span id="ip">…</span>
     <button id="toggleIpBtn" onclick="toggleIP()">Скрыть IP</button>
   </div>
-  <div><strong>Пинг (задержка):</strong> <span id="ping">…</span> мс</div>
+  <div><strong>Пинг (задержка):</strong> <span id="ping">…</span></div>
   <div><strong>Скорость скачивания (download):</strong> <span id="download">…</span></div>
   <div><strong>Скорость отправки данных (upload):</strong> <span id="upload">…</span></div>
 </div>
@@ -165,7 +137,7 @@
     Использовать свои ссылки на файлы
   </label>
   <textarea id="customUrlsInput" placeholder="Вставьте сюда URL файлов, по одному в строке"
-    style="width: 100%; background:#222; color:#0ff; border: 1px solid #0ff; border-radius:4px; padding:6px; font-family: monospace; margin-top:8px; resize: vertical;"></textarea>
+    style="width: 100%; height: 80px; display:none; background:#222; color:#0ff; border: 1px solid #0ff; border-radius:4px; padding:6px; font-family: monospace; margin-top:8px; resize: vertical;"></textarea>
 </div>
 
 <button id="startBtn" onclick="startTest()">Начать тест</button>
@@ -177,336 +149,231 @@
 <div class="recommendation" id="recommendation" aria-live="polite" aria-atomic="true" style="display:none;"></div>
 
 <script>
-  const useCustomUrlsCheckbox = document.getElementById("useCustomUrls");
-  const customUrlsInput = document.getElementById("customUrlsInput");
-  const logEl = document.getElementById("log");
-  const chart = document.getElementById("chart");
-  const ctx = chart.getContext("2d");
-  const speedEl = document.getElementById("speed");
-  const speedUnitEl = document.getElementById("speed-unit");
-  const speedMbEl = document.getElementById("speed-mb");
-  const pingEl = document.getElementById("ping");
-  const downloadEl = document.getElementById("download");
-  const uploadEl = document.getElementById("upload");
-  const ipEl = document.getElementById("ip");
-  const toggleIpBtn = document.getElementById("toggleIpBtn");
-  const recommendationEl = document.getElementById("recommendation");
-  const startBtn = document.getElementById("startBtn");
+const useCustomUrlsCheckbox = document.getElementById("useCustomUrls");
+const customUrlsInput = document.getElementById("customUrlsInput");
+const logEl = document.getElementById("log");
+const chart = document.getElementById("chart");
+const ctx = chart.getContext("2d");
 
-  chart.width = chart.clientWidth * devicePixelRatio;
-  chart.height = chart.clientHeight * devicePixelRatio;
-  ctx.scale(devicePixelRatio, devicePixelRatio);
+chart.width = chart.clientWidth * devicePixelRatio;
+chart.height = chart.clientHeight * devicePixelRatio;
+ctx.scale(devicePixelRatio, devicePixelRatio);
 
-  const pingPoints = [];
-  const downloadPoints = [];
-  const uploadPoints = [];
-  const maxPoints = 30;
+const pingPoints = [];
+const downloadPoints = [];
+const uploadPoints = [];
+const maxPoints = 30;
+let chartNeedsUpdate = false;
 
-  let chartNeedsUpdate = false;
+useCustomUrlsCheckbox.addEventListener("change", () => {
+  customUrlsInput.style.display = useCustomUrlsCheckbox.checked ? "block" : "none";
+});
 
-  // Переключение видимости textarea для собственных ссылок
-  useCustomUrlsCheckbox.addEventListener("change", () => {
-    if (useCustomUrlsCheckbox.checked) {
-      customUrlsInput.classList.add("visible");
-    } else {
-      customUrlsInput.classList.remove("visible");
-    }
-  });
-
-  // Дефолтные файлы для скачивания (Steam)
-  const downloadFiles = [
-  { url: "https://speed.hetzner.de/10MB.bin", sizeBytes: 10 * 1024 * 1024 },
-  { url: "https://speed.hetzner.de/1MB.bin", sizeBytes: 1 * 1024 * 1024 },
-  { url: "https://speed.hetzner.de/100MB.bin", sizeBytes: 100 * 1024 * 1024 }
+const downloadFiles = [
+  { url: "https://speed.hetzner.de/1MB.bin", sizeBytes: 1_000_000 },
+  { url: "https://speed.hetzner.de/10MB.bin", sizeBytes: 10_000_000 },
+  { url: "https://speed.hetzner.de/100MB.bin", sizeBytes: 100_000_000 }
 ];
+const pingImage = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Example.jpg/240px-Example.jpg";
+const uploadUrl = "https://httpbin.org/post";
 
+function drawChart() {
+  if (!chartNeedsUpdate) return;
+  chartNeedsUpdate = false;
+  const width = chart.clientWidth;
+  const height = chart.clientHeight;
+  ctx.clearRect(0, 0, width, height);
+  ctx.strokeStyle = "#0ff";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(40, 10);
+  ctx.lineTo(40, height - 30);
+  ctx.lineTo(width - 10, height - 30);
+  ctx.stroke();
+  ctx.font = "12px monospace";
+  ctx.fillStyle = "#0ff";
+  ctx.textAlign = "center";
+  ctx.fillText("Время →", width / 2, height - 8);
+  ctx.save();
+  ctx.translate(12, height / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText("Значение", 0, 0);
+  ctx.restore();
 
-  const pingImage = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Example.jpg/240px-Example.jpg";
-  const uploadUrl = "https://httpbin.org/post";
+  const maxVal = Math.max(...pingPoints, ...downloadPoints, ...uploadPoints, 100);
+  const stepX = (width - 60) / (maxPoints - 1);
 
-  function drawChart() {
-    if (!chartNeedsUpdate) return;
-    chartNeedsUpdate = false;
+  function scaleVal(val) {
+    return height - 30 - (val / maxVal) * (height - 40);
+  }
 
-    const width = chart.clientWidth;
-    const height = chart.clientHeight;
-    ctx.clearRect(0, 0, width, height);
-
-    // Оси
-    ctx.strokeStyle = "#0ff";
-    ctx.lineWidth = 1;
+  function drawLine(points, color, label) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(40, 10);
-    ctx.lineTo(40, height - 30);
-    ctx.lineTo(width - 10, height - 30);
+    points.forEach((val, i) => {
+      const x = 40 + i * stepX;
+      const y = scaleVal(val);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
     ctx.stroke();
-
-    ctx.font = "12px monospace";
-    ctx.fillStyle = "#0ff";
-    ctx.textAlign = "center";
-
-    ctx.fillText("Время →", width / 2, height - 8);
-    ctx.save();
-    ctx.translate(12, height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Значение", 0, 0);
-    ctx.restore();
-
-    // Макс значения
-    const maxPing = Math.max(...pingPoints, 0);
-    const maxDownload = Math.max(...downloadPoints, 0);
-    const maxUpload = Math.max(...uploadPoints, 0);
-    let maxVal = Math.max(maxPing, maxDownload, maxUpload, 100);
-    if (maxVal < 10) maxVal = 10;
-
-    const stepX = (width - 60) / (maxPoints - 1);
-
-    function scaleVal(val) {
-      return height - 30 - (val / maxVal) * (height - 40);
-    }
-
-    function drawLine(points, color, label) {
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      points.forEach((val, i) => {
-        const x = 40 + i * stepX;
-        const y = scaleVal(val);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-
-      ctx.fillStyle = color;
-      ctx.textAlign = "left";
-      ctx.fillText(label, width - 100, 20 + 20 * ["Пинг", "Скачивание", "Загрузка"].indexOf(label));
-    }
-
-    drawLine(pingPoints, "#00ffff", "Пинг");
-    drawLine(downloadPoints, "#00ff00", "Скачивание");
-    drawLine(uploadPoints, "#ff8800", "Загрузка");
+    ctx.fillStyle = color;
+    ctx.textAlign = "left";
+    ctx.fillText(label, width - 100, 20 + 20 * ["Пинг", "Скачивание", "Загрузка"].indexOf(label));
   }
 
-  setInterval(drawChart, 100);
+  drawLine(pingPoints, "#00ffff", "Пинг");
+  drawLine(downloadPoints, "#00ff00", "Скачивание");
+  drawLine(uploadPoints, "#ff8800", "Загрузка");
+}
 
-  function log(text) {
-    const now = new Date().toLocaleTimeString();
-    logEl.textContent += `[${now}] ${text}\n`;
-    logEl.scrollTop = logEl.scrollHeight;
+setInterval(drawChart, 100);
+
+function log(text) {
+  const now = new Date().toLocaleTimeString();
+  logEl.textContent += `[${now}] ${text}\n`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function formatSpeed(bitsPerSecond) {
+  if (!bitsPerSecond) return "0 Мбит/с";
+  return bitsPerSecond >= 1e6
+    ? (bitsPerSecond / 1e6).toFixed(2) + " Мбит/с"
+    : (bitsPerSecond / 1e3).toFixed(2) + " Кбит/с";
+}
+
+function formatSpeedMB(bitsPerSecond) {
+  return (bitsPerSecond / 8 / 1e6).toFixed(2) + " МБ/с";
+}
+
+async function getIP() {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    document.getElementById('ip').textContent = data.ip;
+    log(`IP адрес: ${data.ip}`);
+  } catch {
+    document.getElementById('ip').textContent = "Ошибка";
+    log(`Ошибка при получении IP`);
   }
+}
 
-  function formatSpeed(bitsPerSecond) {
-    if (typeof bitsPerSecond !== "number" || bitsPerSecond <= 0) return "0 Мбит/с";
-    if (bitsPerSecond >= 1e9) return (bitsPerSecond / 1e9).toFixed(2) + " Гбит/с";
-    if (bitsPerSecond >= 1e6) return (bitsPerSecond / 1e6).toFixed(2) + " Мбит/с";
-    if (bitsPerSecond >= 1e3) return (bitsPerSecond / 1e3).toFixed(2) + " Кбит/с";
-    return bitsPerSecond.toFixed(2) + " бит/с";
-  }
-
-  function formatSpeedMB(bitsPerSecond) {
-    if (typeof bitsPerSecond !== "number" || bitsPerSecond <= 0) return "0 МБ/с";
-    const bytesPerSecond = bitsPerSecond / 8;
-    if (bytesPerSecond >= 1e6) return (bytesPerSecond / 1e6).toFixed(2) + " МБ/с";
-    if (bytesPerSecond >= 1e3) return (bytesPerSecond / 1e3).toFixed(2) + " КБ/с";
-    return bytesPerSecond.toFixed(2) + " Б/с";
-  }
-
-  async function getIP() {
+async function measurePing(repeats = 5, delayMs = 250) {
+  const results = [];
+  for (let i = 0; i < repeats; i++) {
+    const start = performance.now();
     try {
-      const res = await fetch('https://api.ipify.org?format=json');
-      const data = await res.json();
-      ipEl.textContent = data.ip;
-      ipEl.dataset.ip = data.ip; // Сохраняем для toggleIP
-      log(`IP адрес получен: ${data.ip}`);
-    } catch {
-      ipEl.textContent = "Не удалось получить IP";
-      log(`Ошибка при получении IP`);
-    }
-  }
-
-  function toggleIP() {
-    if (ipEl.textContent === "Скрыт") {
-      ipEl.textContent = ipEl.dataset.ip || "…";
-      toggleIpBtn.textContent = "Скрыть IP";
-    } else {
-      ipEl.textContent = "Скрыт";
-      toggleIpBtn.textContent = "Показать IP";
-    }
-  }
-
-  function addPoint(arr, val) {
-    if (arr.length >= maxPoints) arr.shift();
-    arr.push(val);
-  }
-
-  async function measurePing(repeats = 7, delayMs = 250) {
-    let results = [];
-    for (let i = 0; i < repeats; i++) {
-      const start = performance.now();
-      try {
-        await new Promise((resolve, reject) => {
-          const img = new Image();
-          img.src = pingImage + "?rand=" + Math.random();
-          img.onload = () => resolve();
-          img.onerror = () => reject();
-        });
-        const duration = performance.now() - start;
-        results.push(duration);
-        addPoint(pingPoints, duration);
-        chartNeedsUpdate = true;
-        log(`Пинг #${i + 1}: ${duration.toFixed(2)} мс`);
-      } catch {
-        results.push(null);
-        addPoint(pingPoints, 0);
-        chartNeedsUpdate = true;
-        log(`Пинг #${i + 1}: ошибка`);
-      }
-      await new Promise((r) => setTimeout(r, delayMs));
-    }
-    const valid = results.filter((r) => typeof r === "number" && r > 0);
-    if (valid.length === 0) return "ERR";
-    valid.sort((a, b) => a - b);
-    if (valid.length > 2) {
-      valid.splice(0, 1);
-      valid.splice(valid.length - 1, 1);
-    }
-    const avg = valid.reduce((a, b) => a + b, 0) / valid.length;
-    return avg.toFixed(2);
-  }
-
-  async function measureDownload() {
-    let filesToDownload = [];
-
-    if (useCustomUrlsCheckbox.checked) {
-      const lines = customUrlsInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-      if (lines.length === 0) {
-        log("Ошибка: вы выбрали использовать свои ссылки, но список пуст. Галочка будет снята.");
-        useCustomUrlsCheckbox.checked = false;
-        customUrlsInput.classList.remove("visible");
-        return 0;
-      }
-      filesToDownload = lines.map(url => ({ url, sizeBytes: 5_000_000 }));
-    } else {
-      filesToDownload = downloadFiles;
-    }
-
-    let totalBytes = 0;
-    let totalTime = 0;
-
-    for (const file of filesToDownload) {
-      const url = file.url + (file.url.includes("?") ? "&" : "?") + "rand=" + Math.random();
-      log(`Скачиваем файл (примерно ${(file.sizeBytes / (1024 * 1024)).toFixed(2)} МБ): ${file.url}`);
-      const start = performance.now();
-      try {
-        const response = await fetch(url, { cache: "no-cache" });
-        if (!response.ok) throw new Error("HTTP " + response.status);
-        await response.blob();
-        const end = performance.now();
-
-        totalBytes += file.sizeBytes;
-        totalTime += (end - start) / 1000;
-
-        const speed = (totalBytes * 8) / totalTime;
-        addPoint(downloadPoints, speed / 1e6);
-        chartNeedsUpdate = true;
-
-        log(`Скачано ${(totalBytes / (1024 * 1024)).toFixed(2)} МБ за ${totalTime.toFixed(2)} сек, скорость: ${formatSpeed(speed)}`);
-      } catch (e) {
-        log(`Ошибка при скачивании: ${e.message}`);
-      }
-    }
-    if (totalTime === 0) return 0;
-    return (totalBytes * 8) / totalTime;
-  }
-
-  async function measureUpload() {
-    const sizeBytes = 512 * 1024;
-    const data = new Uint8Array(sizeBytes);
-    const chunkSize = 128 * 1024;
-    let totalBits = 0;
-    let totalTime = 0;
-
-    for (let i = 0; i < sizeBytes; i += chunkSize) {
-      const chunk = data.subarray(i, i + chunkSize);
-      log(`Загружаем ${(i + chunk.length) / 1024} КБ из ${sizeBytes / 1024} КБ...`);
-      const start = performance.now();
-      try {
-        const response = await fetch(uploadUrl, {
-          method: "POST",
-          body: chunk,
-          mode: "cors"
-        });
-        if (!response.ok) throw new Error("HTTP " + response.status);
-      } catch (e) {
-        log(`Ошибка при загрузке: ${e.message}`);
-        break;
-      }
-      const end = performance.now();
-      totalBits += chunk.length * 8;
-      totalTime += (end - start) / 1000;
-      addPoint(uploadPoints, (totalBits / totalTime) / 1e6);
+      await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = pingImage + "?rand=" + Math.random();
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+      const duration = performance.now() - start;
+      results.push(duration);
+      addPoint(pingPoints, duration);
       chartNeedsUpdate = true;
+      log(`Пинг #${i + 1}: ${duration.toFixed(2)} мс`);
+    } catch {
+      results.push(null);
+      addPoint(pingPoints, 0);
     }
-    if (totalTime === 0) return 0;
-    return totalBits / totalTime;
+    await new Promise(r => setTimeout(r, delayMs));
   }
+  const valid = results.filter(r => r);
+  if (!valid.length) return "ERR";
+  valid.sort((a, b) => a - b);
+  if (valid.length > 2) valid.splice(0, 1, valid.pop());
+  return (valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2);
+}
 
-  function updateMainSpeedDisplay(speedBps) {
-    speedEl.textContent = speedBps > 0 ? speedBps.toFixed(1) : "0";
-    speedUnitEl.textContent = "Мбит/с";
-    speedMbEl.textContent = speedBps > 0 ? "(" + formatSpeedMB(speedBps * 1e6) + ")" : "";
-  }
+async function measureDownload() {
+  let filesToDownload = useCustomUrlsCheckbox.checked
+    ? customUrlsInput.value.split(/\r?\n/).map(url => ({ url, sizeBytes: 5_000_000 }))
+    : downloadFiles;
 
-  function recommend(speedMbps, pingMs) {
-    if (speedMbps < 5) {
-      return "Ваш интернет медленный, возможны задержки и плохое качество видео. Рекомендуем перейти на тариф с большей скоростью.";
+  let totalBytes = 0;
+  let totalTime = 0;
+
+  for (const file of filesToDownload) {
+    try {
+      const url = file.url + (file.url.includes("?") ? "&" : "?") + "rand=" + Math.random();
+      const start = performance.now();
+      const res = await fetch(url, { cache: "no-cache" });
+      await res.blob();
+      const end = performance.now();
+      const time = (end - start) / 1000;
+      totalBytes += file.sizeBytes;
+      totalTime += time;
+      const speed = (totalBytes * 8) / totalTime;
+      addPoint(downloadPoints, speed / 1e6);
+      chartNeedsUpdate = true;
+      log(`Скачано ${file.sizeBytes / 1e6} МБ за ${time.toFixed(2)} сек`);
+    } catch (e) {
+      log("Ошибка при скачивании: " + e.message);
     }
-    if (pingMs > 150) {
-      return "Высокий пинг. Для игр и видеозвонков рекомендуется снизить задержку, например, сменить провайдера или подключиться к другому серверу.";
-    }
-    return "Интернет работает хорошо. Для игр и стриминга текущих параметров достаточно.";
   }
 
-  async function startTest() {
-    startBtn.disabled = true;
-    logEl.textContent = "";
-    recommendationEl.style.display = "none";
+  if (!totalTime) return 0;
+  return (totalBytes * 8) / totalTime;
+}
 
-    // IP
-    await getIP();
+async function measureUpload() {
+  const size = 512 * 1024;
+  const data = new Uint8Array(size);
+  const start = performance.now();
+  await fetch(uploadUrl, { method: "POST", body: data });
+  const time = (performance.now() - start) / 1000;
+  const speed = (size * 8) / time;
+  addPoint(uploadPoints, speed / 1e6);
+  chartNeedsUpdate = true;
+  return speed;
+}
 
-    // Пинг
-    log("Начинаем измерение пинга...");
-    let pingVal = await measurePing();
-    pingEl.textContent = pingVal !== "ERR" ? pingVal + " мс" : "Ошибка";
-    log(`Средний пинг: ${pingVal}`);
+function addPoint(arr, val) {
+  if (arr.length >= maxPoints) arr.shift();
+  arr.push(val);
+}
 
-    // Загрузка
-    log("Начинаем измерение скорости скачивания...");
-    let downloadSpeed = await measureDownload();
-    downloadEl.textContent = formatSpeed(downloadSpeed * 1e6);
-    log(`Средняя скорость скачивания: ${formatSpeed(downloadSpeed * 1e6)}`);
+function generateRecommendation(ping, dl, ul) {
+  return `Пинг: ${ping} мс<br>Скачивание: ${formatSpeed(dl)}<br>Загрузка: ${formatSpeed(ul)}<br>`;
+}
 
-    // Загрузка
-    log("Начинаем измерение скорости загрузки...");
-    let uploadSpeed = await measureUpload();
-    uploadEl.textContent = formatSpeed(uploadSpeed * 1e6);
-    log(`Средняя скорость загрузки: ${formatSpeed(uploadSpeed * 1e6)}`);
+async function startTest() {
+  logEl.textContent = "";
+  document.getElementById("startBtn").disabled = true;
+  await getIP();
+  const ping = await measurePing();
+  document.getElementById("ping").textContent = ping === "ERR" ? "Ошибка" : ping + " мс";
+  const dl = await measureDownload();
+  document.getElementById("download").textContent = formatSpeed(dl);
+  document.getElementById("speed").textContent = (dl / 1e6).toFixed(2);
+  document.getElementById("speed-mb").textContent = formatSpeedMB(dl);
+  const ul = await measureUpload();
+  document.getElementById("upload").textContent = formatSpeed(ul);
+  const rec = document.getElementById("recommendation");
+  rec.innerHTML = generateRecommendation(ping, dl, ul);
+  rec.style.display = "block";
+  document.getElementById("startBtn").disabled = false;
+  log("Тест завершён.");
+}
 
-    // Отображаем максимальную из download/upload как главную скорость
-    const maxSpeed = Math.max(downloadSpeed, uploadSpeed);
-    updateMainSpeedDisplay(maxSpeed);
-
-    // Рекомендации
-    recommendationEl.textContent = recommend(downloadSpeed, parseFloat(pingVal));
-    recommendationEl.style.display = "block";
-
-    startBtn.disabled = false;
+function toggleIP() {
+  const ip = document.getElementById("ip");
+  const btn = document.getElementById("toggleIpBtn");
+  if (ip.textContent === "…") return;
+  if (ip.style.userSelect === "none") {
+    ip.textContent = ip.dataset.ip;
+    ip.style.userSelect = "text";
+    btn.textContent = "Скрыть IP";
+  } else {
+    ip.dataset.ip = ip.textContent;
+    ip.textContent = ip.textContent.replace(/./g, "*");
+    ip.style.userSelect = "none";
+    btn.textContent = "Показать IP";
   }
-
-  // Инициализация
-  getIP();
+}
 </script>
-
 </body>
 </html>
