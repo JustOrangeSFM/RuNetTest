@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>RuNetTest — Проверка интернет-соединения</title>
 <style>
-  /* Твои стили из вопроса, без изменений */
+  /* Твои стили без изменений */
   :root {
     --accent-color: #4a90e2;
     --accent-glow: #4a90e233;
@@ -307,28 +307,17 @@
       return;
     }
     try {
-      // Сначала ipify
-      let res = await fetch("https://api.ipify.org?format=json");
-      if (!res.ok) throw new Error("ipify error");
+      // Используем только ipinfo.io, чтобы избежать блокировок adblock
+      let res = await fetch("https://ipinfo.io/json");
+      if (!res.ok) throw new Error("ipinfo error");
       let data = await res.json();
-      if (!data.ip) throw new Error("ipify no ip");
+      if (!data.ip) throw new Error("ipinfo no ip");
 
       ipEl.textContent = data.ip;
-      log(`IP ${data.ip} получен / IP ${data.ip} received`);
+      log(`IP ${data.ip} получен / IP ${data.ip} received (from ipinfo.io)`);
     } catch {
-      try {
-        // Резерв ipinfo.io
-        let res = await fetch("https://ipinfo.io/json");
-        if (!res.ok) throw new Error("ipinfo error");
-        let data = await res.json();
-        if (!data.ip) throw new Error("ipinfo no ip");
-
-        ipEl.textContent = data.ip;
-        log(`IP ${data.ip} получен / IP ${data.ip} received (from ipinfo.io)`);
-      } catch {
-        ipEl.textContent = lang === 'ru' ? "IP скрыт" : "IP hidden";
-        log(lang === 'ru' ? "Ошибка при получении IP — возможно блокировка" : "Error fetching IP — possibly blocked");
-      }
+      ipEl.textContent = lang === 'ru' ? "IP скрыт" : "IP hidden";
+      log(lang === 'ru' ? "Ошибка при получении IP — возможно блокировка" : "Error fetching IP — possibly blocked");
     }
   }
 
