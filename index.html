@@ -301,25 +301,58 @@
   }
 
   async function getIP() {
-    if (ipHidden) {
-      ipEl.textContent = texts[lang].recommendationIPHidden;
-      log(texts[lang].recommendationIPHidden);
-      return;
-    }
-    try {
-      // Используем только ipinfo.io, чтобы избежать блокировок adblock
-      let res = await fetch("https://ipinfo.io/json");
-      if (!res.ok) throw new Error("ipinfo error");
-      let data = await res.json();
-      if (!data.ip) throw new Error("ipinfo no ip");
+  if (ipHidden) {
+    ipEl.textContent = texts[lang].recommendationIPHidden;
+    log(texts[lang].recommendationIPHidden);
+    return;
+  }
+  try {
+    // Основной метод - ipinfo.io
+    let res = await fetch("https://ipinfo.io/json");
+    if (!res.ok) throw new Error("ipinfo error");
+    let data = await res.json();
+    if (!data.ip) throw new Error("ipinfo no ip");
 
-      ipEl.textContent = data.ip;
-      log(`IP ${data.ip} получен / IP ${data.ip} received (from ipinfo.io)`);
-    } catch {
+    ipEl.textContent = data.ip;
+    log(`IP ${data.ip} получен / IP ${data.ip} received (from ipinfo.io)`);
+  } catch (e) {
+    log(`ipinfo.io failed (${e.message}), пытаемся WebRTC...`);
+
+    // Попытка получить локальный IP через WebRTC (пример)
+    let localIP = await getLocalIPViaWebRTC();
+    if(localIP){
+      ipEl.textContent = localIP + " (локальный IP)";
+      log(`Получен локальный IP через WebRTC: ${localIP}`);
+    } else {
       ipEl.textContent = lang === 'ru' ? "IP скрыт" : "IP hidden";
       log(lang === 'ru' ? "Ошибка при получении IP — возможно блокировка" : "Error fetching IP — possibly blocked");
     }
   }
+}
+
+// Функция для получения локального IP через WebRTC
+function getLocalIPViaWebRTC() {
+  return new Promise((resolve) => {
+    const ips = new Set();
+    const pc = new RTCPeerConnection({iceServers: []});
+    pc.createDataChannel('');
+    pc.onicecandidate = (event) => {
+      if (!event.candidate) {
+        pc.close();
+        // Возвращаем первый найденный IP, если есть
+        resolve(ips.size ? Array.from(ips)[0] : null);
+        return;
+      }
+      const parts = event.candidate.candidate.split(' ');
+      const ip = parts[4];
+      if (ip && !ips.has(ip)) {
+        ips.add(ip);
+      }
+    };
+    pc.createOffer().then(offer => pc.setLocalDescription(offer)).catch(() => resolve(null));
+  });
+}
+
 
   function toggleIP() {
     ipHidden = !ipHidden;
