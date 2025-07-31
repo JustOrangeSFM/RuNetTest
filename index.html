@@ -147,6 +147,15 @@
   <div><strong>Скорость отправки данных (upload):</strong> <span id="upload">…</span></div>
 </div>
 
+<div style="max-width: 480px; margin: 20px auto; text-align: left; color: #0ff;">
+  <label style="display:flex; align-items:center; font-size:1.1em; cursor:pointer; user-select:none;">
+    <input type="checkbox" id="useCustomUrls" style="vertical-align:middle; margin-right:8px;" />
+    Использовать свои ссылки на файлы
+  </label>
+  <textarea id="customUrlsInput" placeholder="Вставьте сюда URL файлов, по одному в строке"
+    style="width: 100%; height: 80px; display:none; background:#222; color:#0ff; border: 1px solid #0ff; border-radius:4px; padding:6px; font-family: monospace; margin-top:8px; resize: vertical;"></textarea>
+</div>
+
 <button id="startBtn" onclick="startTest()">Начать тест</button>
 
 <canvas id="chart" aria-label="График скорости и пинга" role="img"></canvas>
@@ -156,18 +165,12 @@
 <div class="recommendation" id="recommendation" aria-live="polite" aria-atomic="true" style="display:none;"></div>
 
 <script>
-  const downloadFiles = [
-    { url: "https://speed.cloudflare.com/__down?bytes=1048576", sizeBytes: 1 * 1024 * 1024 },
-    { url: "https://speed.cloudflare.com/__down?bytes=5242880", sizeBytes: 5 * 1024 * 1024 },
-    { url: "https://speed.cloudflare.com/__down?bytes=10485760", sizeBytes: 10 * 1024 * 1024 }
-  ];
-
-  const pingImage = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Example.jpg/240px-Example.jpg";
-  const uploadUrl = "https://httpbin.org/post";
-
+  const useCustomUrlsCheckbox = document.getElementById("useCustomUrls");
+  const customUrlsInput = document.getElementById("customUrlsInput");
   const logEl = document.getElementById("log");
   const chart = document.getElementById("chart");
   const ctx = chart.getContext("2d");
+
   chart.width = chart.clientWidth * devicePixelRatio;
   chart.height = chart.clientHeight * devicePixelRatio;
   ctx.scale(devicePixelRatio, devicePixelRatio);
@@ -178,6 +181,26 @@
   const maxPoints = 30;
 
   let chartNeedsUpdate = false;
+
+  // Обработчик переключения чекбокса — только один, без конфликтов
+  useCustomUrlsCheckbox.addEventListener("change", () => {
+  if (useCustomUrlsCheckbox.checked) {
+    customUrlsInput.style.display = "block";
+  } else {
+    customUrlsInput.style.display = "none";
+  }
+});
+
+
+  // Исходные файлы для скачивания
+  const downloadFiles = [
+    { url: "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip", sizeBytes: 9_000_000 },
+    { url: "https://steamcdn-a.akamaihd.net/client/installer/steamclient.zip", sizeBytes: 12_000_000 },
+    { url: "https://steamcdn-a.akamaihd.net/client/installer/steamsetup.exe", sizeBytes: 14_000_000 }
+  ];
+
+  const pingImage = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Example.jpg/240px-Example.jpg";
+  const uploadUrl = "https://httpbin.org/post";
 
   function drawChart() {
     if (!chartNeedsUpdate) return;
@@ -201,8 +224,8 @@
 
     ctx.fillText("Время →", width / 2, height - 8);
     ctx.save();
-    ctx.translate(12, height/2);
-    ctx.rotate(-Math.PI/2);
+    ctx.translate(12, height / 2);
+    ctx.rotate(-Math.PI / 2);
     ctx.fillText("Значение", 0, 0);
     ctx.restore();
 
@@ -248,16 +271,16 @@
     logEl.scrollTop = logEl.scrollHeight;
   }
 
-  // Формат скорости в битах/с с приставками
   function formatSpeed(bitsPerSecond) {
+    if (typeof bitsPerSecond !== "number" || bitsPerSecond <= 0) return "0 Мбит/с";
     if (bitsPerSecond >= 1e9) return (bitsPerSecond / 1e9).toFixed(2) + " Гбит/с";
     if (bitsPerSecond >= 1e6) return (bitsPerSecond / 1e6).toFixed(2) + " Мбит/с";
     if (bitsPerSecond >= 1e3) return (bitsPerSecond / 1e3).toFixed(2) + " Кбит/с";
     return bitsPerSecond.toFixed(2) + " бит/с";
   }
 
-  // Формат скорости в мегабайтах/сек
   function formatSpeedMB(bitsPerSecond) {
+    if (typeof bitsPerSecond !== "number" || bitsPerSecond <= 0) return "0 МБ/с";
     const bytesPerSecond = bitsPerSecond / 8;
     if (bytesPerSecond >= 1e6) return (bytesPerSecond / 1e6).toFixed(2) + " МБ/с";
     if (bytesPerSecond >= 1e3) return (bytesPerSecond / 1e3).toFixed(2) + " КБ/с";
@@ -276,7 +299,7 @@
     }
   }
 
-  async function measurePing(repeats = 5, delayMs = 250) {
+  async function measurePing(repeats = 7, delayMs = 250) {
     let results = [];
     for (let i = 0; i < repeats; i++) {
       const start = performance.now();
@@ -291,31 +314,51 @@
         results.push(duration);
         addPoint(pingPoints, duration);
         chartNeedsUpdate = true;
-        log(`Пинг #${i+1}: ${duration.toFixed(2)} мс`);
+        log(`Пинг #${i + 1}: ${duration.toFixed(2)} мс`);
       } catch {
-        results.push(0);
+        results.push(null);
         addPoint(pingPoints, 0);
         chartNeedsUpdate = true;
-        log(`Пинг #${i+1}: ошибка`);
+        log(`Пинг #${i + 1}: ошибка`);
       }
-      await new Promise(r => setTimeout(r, delayMs));
+      await new Promise((r) => setTimeout(r, delayMs));
     }
-    const valid = results.filter(r => r > 0);
-    if(valid.length === 0) return "ERR";
-    const avg = valid.reduce((a,b)=>a+b,0)/valid.length;
+    const valid = results.filter((r) => typeof r === "number" && r > 0);
+    if (valid.length === 0) return "ERR";
+    valid.sort((a, b) => a - b);
+    if (valid.length > 2) {
+      valid.splice(0, 1);
+      valid.splice(valid.length - 1, 1);
+    }
+    const avg = valid.reduce((a, b) => a + b, 0) / valid.length;
     return avg.toFixed(2);
   }
 
   async function measureDownload() {
+    let filesToDownload = [];
+
+    if (useCustomUrlsCheckbox.checked) {
+      const lines = customUrlsInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      if (lines.length === 0) {
+        log("Ошибка: вы выбрали использовать свои ссылки, но список пуст. Галочка будет снята.");
+        useCustomUrlsCheckbox.checked = false;
+        customUrlsInput.style.display = "none";
+        return 0;
+      }
+      filesToDownload = lines.map(url => ({ url, sizeBytes: 5_000_000 }));
+    } else {
+      filesToDownload = downloadFiles;
+    }
+
     let totalBytes = 0;
     let totalTime = 0;
 
-    for (const file of downloadFiles) {
-      const url = file.url + "&rand=" + Math.random();
-      log(`Скачиваем файл ${(file.sizeBytes / (1024*1024)).toFixed(2)} МБ...`);
+    for (const file of filesToDownload) {
+      const url = file.url + (file.url.includes("?") ? "&" : "?") + "rand=" + Math.random();
+      log(`Скачиваем файл (примерно ${(file.sizeBytes / (1024 * 1024)).toFixed(2)} МБ): ${file.url}`);
       const start = performance.now();
       try {
-        const response = await fetch(url, {cache: "no-cache"});
+        const response = await fetch(url, { cache: "no-cache" });
         if (!response.ok) throw new Error("HTTP " + response.status);
         await response.blob();
         const end = performance.now();
@@ -327,7 +370,7 @@
         addPoint(downloadPoints, speed / 1e6);
         chartNeedsUpdate = true;
 
-        log(`Скачано ${(totalBytes/(1024*1024)).toFixed(2)} МБ за ${totalTime.toFixed(2)} сек, скорость: ${formatSpeed(speed)}`);
+        log(`Скачано ${(totalBytes / (1024 * 1024)).toFixed(2)} МБ за ${totalTime.toFixed(2)} сек, скорость: ${formatSpeed(speed)}`);
       } catch (e) {
         log(`Ошибка при скачивании: ${e.message}`);
       }
@@ -391,89 +434,91 @@
     if (downloadMbps === 0) {
       rec += "Не удалось измерить скорость скачивания.<br>";
     } else if (downloadMbps < 5) {
-      rec += "Скорость скачивания низкая — подходят только простые задачи.<br>";
-    } else if (downloadMbps < 25) {
-      rec += "Скорость скачивания средняя — можно смотреть видео в HD и играть онлайн.<br>";
-    } else if (downloadMbps < 100) {
-      rec += "Хорошая скорость для онлайн-игр и потокового видео.<br>";
+      rec += "Скорость скачивания низкая, страница и видео будут загружаться долго.<br>";
+    } else if (downloadMbps < 30) {
+      rec += "Средняя скорость скачивания — видео и игры будут работать.<br>";
     } else {
-      rec += "Очень высокая скорость — отлично подходит для всего.<br>";
+      rec += "Отличная скорость скачивания — видео и игры работают быстро.<br>";
     }
 
     if (uploadMbps === 0) {
       rec += "Не удалось измерить скорость загрузки.<br>";
-    } else if (uploadMbps < 2) {
-      rec += "Низкая скорость загрузки — могут быть проблемы с видеозвонками и стримингом.<br>";
+    } else if (uploadMbps < 1) {
+      rec += "Скорость загрузки низкая — проблемы с загрузкой файлов и видео-звонками.<br>";
     } else if (uploadMbps < 10) {
-      rec += "Средняя скорость загрузки — видеозвонки и стриминг обычно стабильны.<br>";
+      rec += "Средняя скорость загрузки — подходит для обычных задач.<br>";
     } else {
-      rec += "Высокая скорость загрузки — отлично подходит для стриминга и онлайн-работы.<br>";
+      rec += "Высокая скорость загрузки — отлично для стриминга и загрузки больших файлов.<br>";
     }
 
     return rec;
   }
 
-  async function startTest() {
-    document.getElementById("speed").textContent = "…";
-    document.getElementById("speed-unit").textContent = "Мбит/с";
-    document.getElementById("speed-mb").textContent = "";
-    document.getElementById("ping").textContent = "…";
-    document.getElementById("download").textContent = "…";
-    document.getElementById("upload").textContent = "…";
-    document.getElementById("recommendation").style.display = "none";
-    document.getElementById("recommendation").innerHTML = "";
-    logEl.textContent = "";
-    pingPoints.length = 0;
-    downloadPoints.length = 0;
-    uploadPoints.length = 0;
-    chartNeedsUpdate = true;
-
-    document.getElementById("startBtn").disabled = true;
-
-    await getIP();
-
-    const ping = await measurePing();
-    document.getElementById("ping").textContent = ping === "ERR" ? "Ошибка" : ping + " мс";
-
-    const downloadSpeed = await measureDownload();
-    if(downloadSpeed > 0) {
-      document.getElementById("download").textContent = formatSpeed(downloadSpeed);
-      document.getElementById("speed").textContent = formatSpeed(downloadSpeed);
-      document.getElementById("speed-mb").textContent = formatSpeedMB(downloadSpeed);
-    } else {
-      document.getElementById("download").textContent = "Ошибка";
-      document.getElementById("speed").textContent = "Ошибка";
-      document.getElementById("speed-mb").textContent = "";
+  function addPoint(arr, val) {
+    if (arr.length >= maxPoints) {
+      arr.shift();
     }
-
-    const uploadSpeed = await measureUpload();
-    document.getElementById("upload").textContent = uploadSpeed > 0 ? formatSpeed(uploadSpeed) : "Ошибка";
-
-    const rec = generateRecommendation(ping, downloadSpeed, uploadSpeed);
-    const recEl = document.getElementById("recommendation");
-    recEl.style.display = "block";
-    recEl.innerHTML = rec;
-
-    document.getElementById("startBtn").disabled = false;
+    arr.push(val);
   }
 
-  function addPoint(arr, val) {
-    arr.push(val);
-    if (arr.length > maxPoints) arr.shift();
+  async function startTest() {
+     logEl.textContent = "";
+  log("Тест начат...");
+  document.getElementById("startBtn").disabled = true;
+
+  if (useCustomUrlsCheckbox.checked) {
+    const urls = customUrlsInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (urls.length === 0) {
+      alert("Вы выбрали использовать свои ссылки, но список пуст. Пожалуйста, введите хотя бы одну ссылку или снимите галочку.");
+      document.getElementById("startBtn").disabled = false;
+      return;
+    }
+  }
+
+    // IP
+    await getIP();
+
+    // Пинг
+    const pingResult = await measurePing();
+    document.getElementById("ping").textContent = pingResult === "ERR" ? "Ошибка" : pingResult + " мс";
+
+    // Скорость скачивания
+    const downloadSpeed = await measureDownload();
+    document.getElementById("download").textContent = formatSpeed(downloadSpeed);
+    document.getElementById("speed").textContent = (downloadSpeed / 1e6).toFixed(2);
+    document.getElementById("speed-mb").textContent = formatSpeedMB(downloadSpeed);
+    document.getElementById("speed-unit").textContent = "Мбит/с";
+
+    // Скорость загрузки
+    const uploadSpeed = await measureUpload();
+    document.getElementById("upload").textContent = formatSpeed(uploadSpeed);
+
+    // Рекомендации
+    const recDiv = document.getElementById("recommendation");
+    recDiv.innerHTML = generateRecommendation(pingResult, downloadSpeed, uploadSpeed);
+    recDiv.style.display = "block";
+
+    document.getElementById("startBtn").disabled = false;
+
+    log("Тест завершён.");
   }
 
   function toggleIP() {
-    const ipEl = document.getElementById("ip");
+    const ipSpan = document.getElementById("ip");
     const btn = document.getElementById("toggleIpBtn");
-    if (ipEl.style.filter === "blur(6px)") {
-      ipEl.style.filter = "none";
+    if (ipSpan.textContent === "…") return; // Не показывать если IP не получен
+    if (ipSpan.style.userSelect === "none") {
+      ipSpan.style.userSelect = "text";
+      ipSpan.textContent = ipSpan.dataset.ip || ipSpan.textContent;
       btn.textContent = "Скрыть IP";
     } else {
-      ipEl.style.filter = "blur(6px)";
+      ipSpan.dataset.ip = ipSpan.textContent;
+      ipSpan.textContent = ipSpan.textContent.replace(/./g, "*");
+      ipSpan.style.userSelect = "none";
       btn.textContent = "Показать IP";
     }
   }
-</script>
 
+</script>
 </body>
 </html>
