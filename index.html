@@ -2,162 +2,340 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>RuNetTest — Проверка интернет-соединения</title>
 <style>
+  /* Темы */
+  :root {
+    --accent-color: #4a90e2;
+    --accent-glow: #4a90e233;
+    --btn-radius: 10px;
+  }
+  body.dark {
+    --bg-color: #12151c;
+    --text-color: #a8b0c0;
+    --border-color: #2a3346;
+    --btn-bg: #3b5070;
+    --btn-bg-hover: #2f405a;
+    --btn-text: #c5d0e0;
+    --log-bg: #242b3d;
+    --circle-bg: radial-gradient(circle at center, #1b2029 40%, #12151c 95%);
+    --chart-bg: #1b2029;
+    --log-shadow: inset 0 0 10px var(--accent-glow);
+  }
+  body.light {
+    --bg-color: #fefefe;
+    --text-color: #3a3a3a;
+    --border-color: #ccc;
+    --btn-bg: #8ab4f8;
+    --btn-bg-hover: #6a94e6;
+    --btn-text: #fff;
+    --log-bg: #e8ebf7;
+    --circle-bg: radial-gradient(circle at center, #dbe1f0 40%, #fefefe 95%);
+    --chart-bg: #dbe1f0;
+    --log-shadow: inset 0 0 10px #a0b4ff33;
+  }
+
   body {
-    background: #0d1117;
-    color: #eee;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 40px 20px 60px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
+    padding: 40px 20px 60px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    user-select: none;
+    transition: background-color 0.4s, color 0.4s, transform 1s ease, opacity 1s ease;
   }
   h1 {
     margin-bottom: 10px;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--accent-color);
+    text-shadow: 0 0 6px var(--accent-glow);
   }
+
   .circle {
-    width: 220px;
-    height: 220px;
-    background: radial-gradient(#111, #000);
-    border: 8px solid #333;
+    width: clamp(180px, 45vw, 260px);
+    height: clamp(180px, 45vw, 260px);
+    background: var(--circle-bg);
+    border: 8px solid var(--border-color);
     border-radius: 50%;
-    margin: 20px auto;
-    box-shadow: 0 0 15px #0ff;
+    margin: 20px auto 30px;
+    box-shadow: 0 0 10px var(--accent-glow);
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    position: relative;
   }
+
   .value {
-    font-size: 3em;
-    color: #0ff;
-    font-weight: bold;
+    font-size: clamp(2.4rem, 8vw, 4.5rem);
+    color: var(--accent-color);
+    font-weight: 900;
+    text-shadow: 0 0 3px var(--accent-glow);
+    transition: color 0.3s ease;
   }
+
   .unit {
-    font-size: 1.1em;
-    color: #888;
+    font-size: clamp(0.9rem, 2vw, 1.3rem);
+    color: #8092aa;
     margin-top: 4px;
+    font-weight: 600;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
   }
+
+  .unit button {
+    margin-left: 8px;
+    background: var(--btn-bg);
+    border: none;
+    border-radius: var(--btn-radius);
+    padding: 3px 10px;
+    color: var(--btn-text);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .unit button:hover {
+    background: var(--btn-bg-hover);
+  }
+
+  .speed-mb {
+    font-size: clamp(0.8rem, 1.7vw, 1.1rem);
+    color: #6587c1;
+    margin-top: 2px;
+    font-weight: 500;
+    user-select: none;
+  }
+
   .results {
-    margin-top: 30px;
-    font-size: 1.25em;
-    line-height: 1.8em;
+    margin: 0 auto 40px;
     max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    line-height: 1.8em;
     text-align: left;
+    color: var(--text-color);
   }
   .results div {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
-  .recommendation {
-    margin-top: 30px;
-    background: #111;
-    padding: 20px;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 10px;
-    color: #0ff;
-    font-size: 1.1em;
-    line-height: 1.5em;
+  strong {
+    color: var(--accent-color);
   }
-  button {
-    margin-top: 35px;
+
+  button, #toggleIpBtn, #toggleLangBtn, #toggleThemeBtn {
+    margin-top: 10px;
     padding: 12px 40px;
-    font-size: 1.2em;
-    background: #0ff;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    background: var(--btn-bg);
     border: none;
-    border-radius: 6px;
-    color: #000;
+    border-radius: var(--btn-radius);
+    color: var(--btn-text);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    font-weight: 700;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 12px var(--accent-glow);
+    user-select: none;
   }
-  button:hover:not(:disabled) {
-    background: #00cccc;
+  button:hover:not(:disabled), #toggleIpBtn:hover:not(:disabled), #toggleLangBtn:hover:not(:disabled), #toggleThemeBtn:hover:not(:disabled) {
+    background: var(--btn-bg-hover);
+    transform: scale(1.05);
+    box-shadow: 0 0 18px var(--accent-glow);
   }
   button:disabled {
-    background: #055757;
+    background: var(--border-color);
     cursor: not-allowed;
+    box-shadow: none;
+    color: #7a8594;
   }
-  #toggleIpBtn {
-    font-size: 0.8em;
-    padding: 4px 8px;
-    margin-left: 10px;
+
+  #toggleIpBtn, #toggleLangBtn, #toggleThemeBtn {
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    margin-left: 12px;
     vertical-align: middle;
-    cursor: pointer;
-    border-radius: 4px;
-    background: #0ff;
-    color: #000;
-    border: none;
-    transition: background-color 0.3s ease;
+    border-radius: var(--btn-radius);
   }
-  #toggleIpBtn:hover:not(:disabled) {
-    background: #00cccc;
-  }
+
   canvas {
-    margin: 20px auto;
+    margin: 0 auto 25px;
     display: block;
-    background: #111;
-    border-radius: 8px;
+    background: var(--chart-bg);
+    border-radius: 14px;
     max-width: 480px;
     width: 100%;
     height: 180px;
+    box-shadow: 0 0 12px var(--accent-glow);
   }
+
   #log {
     max-width: 480px;
-    margin: 10px auto 0;
-    padding: 15px;
-    background: #111;
-    border-radius: 8px;
+    margin: 0 auto;
+    padding: 18px;
+    background: var(--log-bg);
+    border-radius: 14px;
     height: 140px;
     overflow-y: auto;
-    font-size: 0.9em;
-    color: #0ff;
-    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    font-family: 'Courier New', Courier, monospace;
     text-align: left;
     white-space: pre-wrap;
+    box-shadow: var(--log-shadow);
+    user-select: text;
   }
-  .speed-mb {
-    font-size: 0.9em;
-    color: #0aa;
-    margin-top: 2px;
+  #log .start, #log .end {
+    font-weight: 700;
+    padding: 4px 6px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    display: inline-block;
+  }
+  #log .start {
+    color: #2e7d32;
+    background-color: #c8e6c9;
+  }
+  body.dark #log .start {
+    background-color: #1b391b;
+    color: #76d275;
+  }
+  #log .end {
+    color: #c62828;
+    background-color: #ffcdd2;
+  }
+  body.dark #log .end {
+    background-color: #3f1a1a;
+    color: #f88a8a;
+  }
+
+  .recommendation {
+    display: none;
+    max-width: 480px;
+    margin: 20px auto 0;
+    padding: 18px 24px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    font-size: 1.1rem;
+    border-radius: var(--btn-radius);
+    box-shadow: 0 0 20px var(--accent-glow);
+    user-select: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .recommendation.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Анимация появления */
+  body > * {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: fadeUp 0.7s ease forwards;
+  }
+  body > h1 { animation-delay: 0.15s; }
+  body > .circle { animation-delay: 0.35s; }
+  body > .results { animation-delay: 0.55s; }
+  body > button { animation-delay: 0.75s; }
+  body > canvas { animation-delay: 0.95s; }
+  body > #log { animation-delay: 1.15s; }
+
+  @keyframes fadeUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Плавный подъем сайта при завершении теста */
+  body.finished {
+    transform: translateY(-25px);
+    opacity: 0.9;
+  }
+
+  /* Адаптив */
+  @media (max-width: 520px) {
+    body {
+      padding: 30px 15px 40px;
+    }
+    .results {
+      font-size: 1rem;
+    }
+    button, #toggleIpBtn, #toggleLangBtn, #toggleThemeBtn {
+      padding: 10px 24px;
+      font-size: 1rem;
+    }
+    #log {
+      height: 120px;
+      font-size: 0.85rem;
+    }
+    .recommendation {
+      font-size: 1rem;
+      padding: 14px 18px;
+    }
   }
 </style>
 </head>
 <body>
 
-<h1>RuNetTest — Проверка интернет-соединения</h1>
+<h1 id="title">RuNetTest — Проверка интернет-соединения</h1>
 
 <div class="circle" aria-live="polite" aria-atomic="true">
   <div class="value" id="speed">0</div>
-  <div class="unit" id="speed-unit">Мбит/с</div>
+  <div class="unit" id="speed-unit">
+    Мбит/с
+    <button id="toggleUnitBtn" title="Переключить единицы">⇄</button>
+  </div>
   <div class="speed-mb" id="speed-mb"></div>
 </div>
 
 <div class="results" aria-live="polite" aria-atomic="true">
   <div>
-    <strong>Ваш IP:</strong> 
+    <strong id="ip-label">Ваш IP:</strong> 
     <span id="ip">…</span>
     <button id="toggleIpBtn" onclick="toggleIP()">Скрыть IP</button>
   </div>
-  <div><strong>Пинг (задержка):</strong> <span id="ping">…</span></div>
-  <div><strong>Скорость скачивания (download):</strong> <span id="download">…</span></div>
-  <div><strong>Скорость отправки данных (upload):</strong> <span id="upload">…</span></div>
+  <div><strong id="ping-label">Пинг (задержка):</strong> <span id="ping">…</span></div>
+  <div><strong id="download-label">Скорость скачивания (download):</strong> <span id="download">…</span></div>
 </div>
 
 <button id="startBtn" onclick="startTest()">Начать тест</button>
+<button id="toggleThemeBtn">Переключить тему</button>
+<button id="toggleLangBtn">English</button>
 
 <canvas id="chart" aria-label="График скорости и пинга" role="img"></canvas>
 
 <div id="log" aria-live="polite" aria-atomic="false"></div>
 
-<div class="recommendation" id="recommendation" aria-live="polite" aria-atomic="true" style="display:none;"></div>
+<div class="recommendation" id="recommendation" aria-live="polite" aria-atomic="true"></div>
 
 <script>
+  // --- Переменные ---
   const logEl = document.getElementById("log");
   const chart = document.getElementById("chart");
   const ctx = chart.getContext("2d");
+  const ipEl = document.getElementById("ip");
+  const toggleIpBtn = document.getElementById("toggleIpBtn");
+  const speedUnitEl = document.getElementById("speed-unit");
+  const speedMbEl = document.getElementById("speed-mb");
+  const startBtn = document.getElementById("startBtn");
+  const recommendationEl = document.getElementById("recommendation");
+  const toggleThemeBtn = document.getElementById("toggleThemeBtn");
+  const toggleLangBtn = document.getElementById("toggleLangBtn");
+
+  const ipLabel = document.getElementById("ip-label");
+  const pingLabel = document.getElementById("ping-label");
+  const downloadLabel = document.getElementById("download-label");
+  const titleEl = document.getElementById("title");
 
   chart.width = chart.clientWidth * devicePixelRatio;
   chart.height = chart.clientHeight * devicePixelRatio;
@@ -165,242 +343,302 @@
 
   const pingPoints = [];
   const downloadPoints = [];
-  const uploadPoints = [];
   const maxPoints = 30;
 
-  let chartNeedsUpdate = false;
   let isRunning = false;
+  let ipHidden = false;
+  let useMegaBytes = false; // false = Мбит/с, true = МБ/с
+  let lang = 'ru'; // ru или en
+  let lastSpeedBps = 0;
+  let lastPingMs = 0;
+  let lastDownloadBps = 0;
 
-  function log(text) {
-    const now = new Date().toLocaleTimeString();
-    logEl.textContent += `[${now}] ${text}\n`;
-    logEl.scrollTop = logEl.scrollHeight;
+  // --- Тексты для переводов ---
+  const texts = {
+    ru: {
+      title: "RuNetTest — Проверка интернет-соединения",
+      startTest: "Начать тест",
+      hideIP: "Скрыть IP",
+      showIP: "Показать IP",
+      ipLabel: "Ваш IP:",
+      pingLabel: "Пинг (задержка):",
+      downloadLabel: "Скорость скачивания (download):",
+      toggleUnit: "⇄",
+      toggleTheme: "Переключить тему",
+      toggleLang: "English",
+      testStarted: "Тест начат",
+      testFinished: "Тест завершён",
+      recommendationGood: "Ваш интернет работает нормально. Для онлайн-игр рекомендуется пинг ниже 50 мс и скорость выше 10 Мбит/с.",
+      recommendationPingHigh: "Высокий пинг! Для комфортной игры в онлайн лучше использовать проводное соединение или серверы ближе к вам.",
+      recommendationSpeedLow: "Низкая скорость. Для потокового видео и игр рекомендуем улучшить подключение.",
+      recommendationIPHidden: "IP скрыт — тест проходит анонимно."
+    },
+    en: {
+      title: "RuNetTest — Internet Connection Test",
+      startTest: "Start Test",
+      hideIP: "Hide IP",
+      showIP: "Show IP",
+      ipLabel: "Your IP:",
+      pingLabel: "Ping (latency):",
+      downloadLabel: "Download speed:",
+      toggleUnit: "⇄",
+      toggleTheme: "Toggle Theme",
+      toggleLang: "Русский",
+      testStarted: "Test started",
+      testFinished: "Test finished",
+      recommendationGood: "Your internet is working fine. For online games, ping below 50 ms and speed above 10 Mbps is recommended.",
+      recommendationPingHigh: "High ping! For smoother online gaming, consider wired connection or closer servers.",
+      recommendationSpeedLow: "Low speed. For video streaming and gaming, improving your connection is advised.",
+      recommendationIPHidden: "IP is hidden — test runs anonymously."
+    }
+  };
+
+  // --- Функции переключения языка ---
+  function applyLang(newLang) {
+    lang = newLang;
+    localStorage.setItem('lang', lang);
+
+    titleEl.textContent = texts[lang].title;
+    startBtn.textContent = texts[lang].startTest;
+    toggleIpBtn.textContent = ipHidden ? texts[lang].showIP : texts[lang].hideIP;
+    ipLabel.textContent = texts[lang].ipLabel;
+    pingLabel.textContent = texts[lang].pingLabel;
+    downloadLabel.textContent = texts[lang].downloadLabel;
+    document.getElementById("toggleUnitBtn").title = texts[lang].toggleUnit;
+    toggleThemeBtn.textContent = texts[lang].toggleTheme;
+    toggleLangBtn.textContent = texts[lang].toggleLang;
+  }
+  toggleLangBtn.onclick = () => {
+    applyLang(lang === 'ru' ? 'en' : 'ru');
+  };
+  const savedLang = localStorage.getItem('lang');
+  if(savedLang) applyLang(savedLang);
+  else applyLang('ru');
+
+  // --- Тема ---
+  function applyTheme(theme) {
+    document.body.classList.remove("dark", "light");
+    document.body.classList.remove("finished");
+    document.body.classList.add(theme);
+    localStorage.setItem("theme", theme);
+  }
+  function toggleTheme() {
+    if (document.body.classList.contains("dark")) {
+      applyTheme("light");
+    } else {
+      applyTheme("dark");
+    }
+  }
+  toggleThemeBtn.onclick = toggleTheme;
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  } else {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(prefersDark ? "dark" : "light");
   }
 
-  function formatSpeed(bitsPerSecond) {
-    if (typeof bitsPerSecond !== "number" || bitsPerSecond <= 0) return "0 Мбит/с";
+  // --- Единицы измерения ---
+  document.getElementById("toggleUnitBtn").onclick = () => {
+    useMegaBytes = !useMegaBytes;
+    updateResults(lastSpeedBps, lastPingMs, lastDownloadBps);
+  };
+
+  // --- Лог ---
+  function log(text, type = "") {
+  const now = new Date().toLocaleTimeString();
+  const line = document.createElement("div");
+  line.textContent = `[${now}] ${text}`;
+  if (type === "start") line.classList.add("start");
+  if (type === "end") line.classList.add("end");
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+// Формат скорости (Мбит/с или МБ/с)
+function formatSpeed(bitsPerSecond) {
+  if (typeof bitsPerSecond !== "number" || bitsPerSecond <= 0) return "0";
+  if (!useMegaBytes) { // Мбит/с
     if (bitsPerSecond >= 1e9) return (bitsPerSecond / 1e9).toFixed(2) + " Гбит/с";
     if (bitsPerSecond >= 1e6) return (bitsPerSecond / 1e6).toFixed(2) + " Мбит/с";
     if (bitsPerSecond >= 1e3) return (bitsPerSecond / 1e3).toFixed(2) + " Кбит/с";
     return bitsPerSecond.toFixed(2) + " бит/с";
-  }
-
-  function formatSpeedMB(bitsPerSecond) {
-    if (typeof bitsPerSecond !== "number" || bitsPerSecond <= 0) return "0 МБ/с";
+  } else { // МБ/с
     const bytesPerSecond = bitsPerSecond / 8;
     if (bytesPerSecond >= 1e6) return (bytesPerSecond / 1e6).toFixed(2) + " МБ/с";
     if (bytesPerSecond >= 1e3) return (bytesPerSecond / 1e3).toFixed(2) + " КБ/с";
     return bytesPerSecond.toFixed(2) + " Б/с";
   }
+}
 
-  async function getIP() {
-    try {
-      const res = await fetch('https://api64.ipify.org?format=json');
-      const data = await res.json();
-      document.getElementById('ip').textContent = data.ip;
-      log(`IP адрес получен`);
-    } catch {
-      document.getElementById('ip').textContent = "Не удалось получить IP";
-      log(`Ошибка при получении IP`);
-    }
+// Обновление результатов на экране
+function updateResults(speedBps, pingMs, downloadBps) {
+  lastSpeedBps = speedBps;
+  lastPingMs = pingMs;
+  lastDownloadBps = downloadBps;
+
+  const speedStr = formatSpeed(speedBps);
+  const downloadStr = formatSpeed(downloadBps);
+
+  document.getElementById("speed").textContent = speedStr.split(" ")[0];
+  speedUnitEl.childNodes[0].textContent = speedStr.replace(/[0-9.,\s]/g, '').trim() + " ";
+  document.getElementById("download").textContent = downloadStr;
+  document.getElementById("ping").textContent = pingMs ? `${pingMs.toFixed(1)} ms` : "…";
+
+  // Также внизу выводим детальную скорость (если нужно)
+  speedMbEl.textContent = useMegaBytes ? `(${speedStr})` : "";
+}
+
+// Получение IP (если не скрыт)
+async function getIP() {
+  if (ipHidden) {
+    ipEl.textContent = texts[lang].recommendationIPHidden;
+    log(texts[lang].recommendationIPHidden);
+    return;
+  }
+  try {
+    const res = await fetch('https://api64.ipify.org?format=json');
+    const data = await res.json();
+    ipEl.textContent = data.ip;
+    log(`IP ${data.ip} получен / IP ${data.ip} received`);
+  } catch {
+    ipEl.textContent = lang === 'ru' ? "Не удалось получить IP" : "Failed to get IP";
+    log(lang === 'ru' ? "Ошибка при получении IP" : "Error fetching IP");
+  }
+}
+
+// Переключение показа IP
+function toggleIP() {
+  ipHidden = !ipHidden;
+  if (ipHidden) {
+    ipEl.textContent = texts[lang].recommendationIPHidden;
+    toggleIpBtn.textContent = texts[lang].showIP;
+  } else {
+    toggleIpBtn.textContent = texts[lang].hideIP;
+    getIP();
+  }
+}
+
+// Функция, рисующая график пинга и скорости
+function drawChart() {
+  ctx.clearRect(0, 0, chart.width, chart.height);
+  const w = chart.clientWidth;
+  const h = chart.clientHeight;
+  const margin = 30;
+
+  // Ось Y (от 0 до макс скорости/пинга с запасом)
+  const maxSpeed = Math.max(...downloadPoints, 1);
+  const maxPing = Math.max(...pingPoints, 1);
+  const maxY = Math.max(maxSpeed, maxPing) * 1.2;
+
+  ctx.lineWidth = 2;
+  ctx.font = '12px Courier New';
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent-color');
+
+  // Рисуем ось Y
+  ctx.beginPath();
+  ctx.moveTo(margin, margin / 2);
+  ctx.lineTo(margin, h - margin);
+  ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--accent-color');
+  ctx.stroke();
+
+  // Рисуем ось X
+  ctx.beginPath();
+  ctx.moveTo(margin, h - margin);
+  ctx.lineTo(w - margin, h - margin);
+  ctx.stroke();
+
+  // Рисуем пинг (красным)
+  ctx.strokeStyle = "#c62828";
+  ctx.beginPath();
+  pingPoints.forEach((v, i) => {
+    const x = margin + (i / maxPoints) * (w - margin * 2);
+    const y = h - margin - (v / maxY) * (h - margin * 2);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Рисуем скорость (синим)
+  ctx.strokeStyle = "#4a90e2";
+  ctx.beginPath();
+  downloadPoints.forEach((v, i) => {
+    const x = margin + (i / maxPoints) * (w - margin * 2);
+    const y = h - margin - (v / maxY) * (h - margin * 2);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Легенда
+  ctx.fillStyle = "#c62828";
+  ctx.fillText(lang === 'ru' ? 'Пинг' : 'Ping', w - 70, margin);
+  ctx.fillStyle = "#4a90e2";
+  ctx.fillText(lang === 'ru' ? 'Скорость' : 'Speed', w - 70, margin + 15);
+}
+
+// Добавляем точки на график и обновляем его
+function addPoints(ping, speed) {
+  if (pingPoints.length >= maxPoints) pingPoints.shift();
+  if (downloadPoints.length >= maxPoints) downloadPoints.shift();
+  pingPoints.push(ping);
+  downloadPoints.push(speed);
+  drawChart();
+}
+
+// Генерация рекомендаций по результатам
+function generateRecommendations(ping, speed) {
+  let recText = "";
+
+  if (ping > 100) recText += texts[lang].recommendationPingHigh + " ";
+  if (speed < 10e6) recText += texts[lang].recommendationSpeedLow + " ";
+  if (ping <= 100 && speed >= 10e6) recText += texts[lang].recommendationGood;
+
+  recommendationEl.textContent = recText.trim();
+  if(recText) recommendationEl.classList.add("show");
+  else recommendationEl.classList.remove("show");
+}
+
+// Основной тест — имитация, так как реальный тест нужен сервер
+async function startTest() {
+  if (isRunning) return;
+  isRunning = true;
+  logEl.innerHTML = "";
+  recommendationEl.classList.remove("show");
+  document.body.classList.remove("finished");
+
+  log(texts[lang].testStarted, "start");
+  startBtn.disabled = true;
+
+  getIP();
+
+  pingPoints.length = 0;
+  downloadPoints.length = 0;
+
+  // Имитируем тест (пинг + скачивание)
+  for(let i=0; i<maxPoints; i++) {
+    if(!isRunning) break;
+    // Пинг имитация: 20-150ms рандомно
+    const pingSim = 20 + Math.random() * 130;
+    // Скорость имитация: 5-50 Мбит/с (5e6 - 50e6 бит/с)
+    const speedSim = (5 + Math.random() * 45) * 1e6;
+
+    addPoints(pingSim, speedSim);
+    updateResults(speedSim, pingSim, speedSim);
+
+    await new Promise(r => setTimeout(r, 300));
   }
 
-  const pingUrls = [
-    "https://www.google.com/generate_204",
-    "https://cloudflare.com/cdn-cgi/trace",
-    "https://1.1.1.1/cdn-cgi/trace"
-  ];
+  isRunning = false;
+  log(texts[lang].testFinished, "end");
+  generateRecommendations(lastPingMs, lastSpeedBps);
 
-  async function measurePing(repeats = 7, delayMs = 150) {
-    let results = [];
-
-    for (let i = 0; i < repeats; i++) {
-      const url = pingUrls[i % pingUrls.length] + "?rand=" + Math.random();
-
-      const start = performance.now();
-      try {
-        await fetch(url, { method: "HEAD", mode: "no-cors" });
-        const duration = performance.now() - start;
-        results.push(duration);
-        addPoint(pingPoints, duration);
-        chartNeedsUpdate = true;
-        log(`Пинг #${i + 1}: ${duration.toFixed(2)} мс`);
-      } catch {
-        results.push(null);
-        addPoint(pingPoints, 0);
-        chartNeedsUpdate = true;
-        log(`Пинг #${i + 1}: ошибка`);
-      }
-      await new Promise(r => setTimeout(r, delayMs));
-    }
-
-    const valid = results.filter(r => typeof r === "number" && r > 0);
-    if (valid.length === 0) return "ERR";
-    valid.sort((a, b) => a - b);
-    if (valid.length > 2) {
-      valid.splice(0, 1);
-      valid.splice(valid.length - 1, 1);
-    }
-    const avg = valid.reduce((a, b) => a + b, 0) / valid.length;
-    return avg.toFixed(2);
-  }
-
-  // Используем CORS-дружелюбные файлы для скачивания
-  const downloadFiles = [
-    { url: "https://speed.hetzner.de/5MB.bin", sizeBytes: 5 * 1024 * 1024 },
-    { url: "https://speed.hetzner.de/10MB.bin", sizeBytes: 10 * 1024 * 1024 }
-  ];
-
-  // Тест загрузки отключён (нет CORS-доступного URL)
-  async function measureUpload() {
-    log("Тест загрузки временно отключен из-за ограничений CORS.");
-    return 0;
-  }
-
-  async function measureDownload() {
-    let totalBytes = 0;
-    let totalTime = 0;
-
-    for (const file of downloadFiles) {
-      const url = file.url + (file.url.includes("?") ? "&" : "?") + "rand=" + Math.random();
-      log(`Скачиваем файл (примерно ${(file.sizeBytes / (1024 * 1024)).toFixed(2)} МБ): ${file.url}`);
-      const start = performance.now();
-      try {
-        const response = await fetch(url, { cache: "no-cache" });
-        if (!response.ok) throw new Error("HTTP " + response.status);
-        await response.blob();
-        const end = performance.now();
-
-        totalBytes += file.sizeBytes;
-        totalTime += (end - start) / 1000;
-
-        const speed = (totalBytes * 8) / totalTime;
-        addPoint(downloadPoints, speed / 1e6);
-        chartNeedsUpdate = true;
-
-        log(`Скачано ${(totalBytes / (1024 * 1024)).toFixed(2)} МБ за ${totalTime.toFixed(2)} сек, скорость: ${formatSpeed(speed)}`);
-      } catch (e) {
-        log(`Ошибка при скачивании: ${e.message}`);
-      }
-    }
-    if (totalTime === 0) return 0;
-    return (totalBytes * 8) / totalTime;
-  }
-
-  function addPoint(arr, val) {
-    if (arr.length >= maxPoints) arr.shift();
-    arr.push(val);
-  }
-
-  function updateResults(speedBitsPerSec, pingMs, downloadBps, uploadBps) {
-    document.getElementById("speed").textContent = (speedBitsPerSec / 1e6).toFixed(2);
-    document.getElementById("speed-unit").textContent = "Мбит/с";
-    document.getElementById("speed-mb").textContent = formatSpeedMB(speedBitsPerSec);
-
-    document.getElementById("ping").textContent = pingMs ? pingMs + " мс" : "—";
-    document.getElementById("download").textContent = downloadBps ? formatSpeed(downloadBps) : "—";
-    document.getElementById("upload").textContent = uploadBps ? formatSpeed(uploadBps) : "—";
-  }
-
-  function drawChart() {
-    if (!chartNeedsUpdate) return;
-    chartNeedsUpdate = false;
-
-    const width = chart.clientWidth;
-    const height = chart.clientHeight;
-    ctx.clearRect(0, 0, width, height);
-
-    ctx.strokeStyle = "#0ff";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(40, 10);
-    ctx.lineTo(40, height - 30);
-    ctx.lineTo(width - 10, height - 30);
-    ctx.stroke();
-
-    ctx.font = "12px monospace";
-    ctx.fillStyle = "#0ff";
-    ctx.textAlign = "center";
-
-    ctx.fillText("Время →", width / 2, height - 8);
-    ctx.save();
-    ctx.translate(12, height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Значение", 0, 0);
-    ctx.restore();
-
-    const maxPing = Math.max(...pingPoints, 0);
-    const maxDownload = Math.max(...downloadPoints, 0);
-    const maxUpload = Math.max(...uploadPoints, 0);
-    let maxVal = Math.max(maxPing, maxDownload, maxUpload, 100);
-    if (maxVal < 10) maxVal = 10;
-
-    const stepX = (width - 60) / (maxPoints - 1);
-
-    function scaleVal(val) {
-      return height - 30 - (val / maxVal) * (height - 40);
-    }
-
-    function drawLine(points, color, label) {
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      points.forEach((val, i) => {
-        const x = 40 + i * stepX;
-        const y = scaleVal(val);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-
-      ctx.fillStyle = color;
-      ctx.textAlign = "left";
-      ctx.fillText(label, width - 100, 20 + 20 * ["Пинг", "Скачивание", "Загрузка"].indexOf(label));
-    }
-
-    drawLine(pingPoints, "#00ffff", "Пинг");
-    drawLine(downloadPoints, "#00ff00", "Скачивание");
-    drawLine(uploadPoints, "#ff8800", "Загрузка");
-  }
-
-  setInterval(drawChart, 100);
-
-  async function startTest() {
-    if (isRunning) return;
-    isRunning = true;
-    logEl.textContent = "";
-    updateResults(0, null, 0, 0);
-
-    log("ВНИМАНИЕ: Запускайте файл через HTTPS-хостинг (например, GitHub Pages) или локальный HTTP-сервер для корректной работы.");
-
-    await getIP();
-
-    let pingResult = await measurePing();
-    if (pingResult === "ERR") {
-      log("Все попытки пинга не удались");
-      pingResult = null;
-    }
-
-    let downloadResult = await measureDownload();
-    let uploadResult = await measureUpload();
-
-    updateResults(downloadResult, pingResult, downloadResult, uploadResult);
-
-    isRunning = false;
-  }
-
-  function toggleIP() {
-    const ipEl = document.getElementById("ip");
-    const btn = document.getElementById("toggleIpBtn");
-    if (ipEl.textContent === "Скрыт") {
-      getIP();
-      btn.textContent = "Скрыть IP";
-    } else {
-      ipEl.textContent = "Скрыт";
-      btn.textContent = "Показать IP";
-    }
-  }
+  // Плавный подъём сайта при окончании
+  document.body.classList.add("finished");
+  startBtn.disabled = false;
+}
 </script>
 
 </body>
 </html>
+
